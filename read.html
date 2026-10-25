@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="ta">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>இதழைப் படிக்க – ஏர் தமிழ் இதழ்</title>
+  <meta name="description" content="ஏர் – தமிழ் இதழின் மாத இதழைப் பக்கம் பக்கமாகப் புரட்டிப் படியுங்கள்.">
+  <meta name="theme-color" content="#123d1e">
+  <link rel="canonical" href="https://ertamilidhazh.github.io/Ertamilidhazh_Website/read.html">
+  <meta property="og:url" content="https://ertamilidhazh.github.io/Ertamilidhazh_Website/read.html">
+  <meta property="og:title" content="ஏர் – தமிழ் இதழ்">
+  <meta property="og:image" content="https://ertamilidhazh.github.io/Ertamilidhazh_Website/assets/img/og-card.jpg">
+
+  <link rel="icon" href="assets/img/favicon.ico" sizes="any">
+  <link rel="icon" href="assets/img/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="assets/img/apple-touch-icon.png">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="preconnect" href="https://drive.usercontent.google.com" crossorigin>
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Arima:wght@400..700&family=Hind+Madurai:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="assets/css/style.css">
+  <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js" defer></script>
+  <script type="module" src="assets/js/reader.js"></script>
+</head>
+<body class="reader-page">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <symbol id="i-back" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-prev" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-next" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></symbol>
+    <symbol id="i-expand" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+    <symbol id="i-collapse" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M9 4v5H4M15 4v5h5M9 20v-5H4M15 20v-5h5"/></symbol>
+    <symbol id="i-pdf" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M14 3H6v18h12V7zM14 3v4h4M9 13h6M9 17h6"/></symbol>
+  </svg>
+
+  <header class="reader-bar">
+    <a class="r-link" href="index.html#issues">
+      <svg aria-hidden="true"><use href="#i-back"/></svg>
+      <span class="label-long">முகப்பு</span>
+      <span class="visually-hidden">முகப்புப் பக்கத்திற்குச் செல்ல</span>
+    </a>
+    <h1 class="visually-hidden">ஏர் – தமிழ் இதழ்: இதழைப் படிக்க</h1>
+    <label class="visually-hidden" for="issue-select">இதழைத் தேர்ந்தெடுக்க</label>
+    <select class="issue-select issue-select--dark" id="issue-select" disabled>
+      <option>இதழ்கள் ஏற்றப்படுகின்றன…</option>
+    </select>
+    <a class="r-link" id="open-drive" href="#" target="_blank" rel="noopener" hidden>
+      <svg aria-hidden="true"><use href="#i-pdf"/></svg>
+      <span class="label-long">PDF ஆகத் திறக்க</span>
+      <span class="visually-hidden">(புதிய பக்கத்தில் திறக்கும்)</span>
+    </a>
+  </header>
+
+  <main class="viewer" id="viewer">
+    <div class="viewer-stage">
+      <div class="reader-status" data-status>
+        <img src="assets/img/logo-192.jpg" width="88" height="88" alt="">
+        <p data-status-text role="status">இதழ் ஏற்றப்படுகிறது…</p>
+        <p class="en" lang="en" data-status-en>Loading the issue</p>
+        <div class="progress" data-progress role="progressbar" aria-label="பதிவிறக்க நிலை" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><span></span></div>
+        <div class="actions" data-actions></div>
+        <noscript><p>இதழைப் படிக்க உலாவியில் JavaScript-ஐ இயக்கவும்.</p></noscript>
+      </div>
+      <div class="book-host" data-host hidden></div>
+    </div>
+    <nav class="reader-controls" aria-label="பக்கங்களைப் புரட்ட">
+      <span class="spacer" data-spacer aria-hidden="true"></span>
+      <button class="r-btn r-btn--page" data-prev type="button" aria-label="முந்தைய பக்கம்" disabled>
+        <svg aria-hidden="true"><use href="#i-prev"/></svg>
+      </button>
+      <p class="counter" data-counter aria-live="polite">பக்கம் – / –</p>
+      <button class="r-btn r-btn--page r-btn--sun" data-next type="button" aria-label="அடுத்த பக்கம்" disabled>
+        <svg aria-hidden="true"><use href="#i-next"/></svg>
+      </button>
+      <button class="r-btn r-btn--fs" data-fullscreen type="button" aria-pressed="false" aria-label="முழுத்திரை" hidden>
+        <svg aria-hidden="true"><use href="#i-expand"/></svg>
+      </button>
+    </nav>
+  </main>
+</body>
+</html>
