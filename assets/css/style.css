@@ -171,11 +171,11 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
   text-decoration: none;
 }
 .brand:hover { color: var(--paddy-900); text-decoration: none; }
-.brand img { width: 52px; height: 52px; border-radius: 50%; }
+.brand img { width: 60px; height: 60px; object-fit: contain; }
 .brand-name { font: 700 1.3rem/1.2 var(--font-display); white-space: nowrap; }
 
 @media (max-width: 420px) {
-  .brand img { width: 44px; height: 44px; }
+  .brand img { width: 48px; height: 48px; }
   .brand-name { font-size: 1.05rem; }
 }
 
@@ -404,7 +404,7 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
   color: #fff;
   text-align: center;
 }
-.cover-fallback img { width: 44%; height: auto; border-radius: 50%; background: #fff; }
+.cover-fallback img { width: 66%; height: auto; }
 .cover-fallback span { font: 700 1.1rem/1.3 var(--font-display); }
 
 /* ---------- sections ---------- */
@@ -707,7 +707,7 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
   padding-top: 1.5rem;
 }
 .footer-brand { display: flex; align-items: center; gap: 0.9rem; }
-.footer-brand img { width: 56px; height: 56px; border-radius: 50%; background: #fff; }
+.footer-brand img { width: 84px; height: 84px; object-fit: contain; }
 .footer-brand strong { display: block; font: 700 1.25rem/1.3 var(--font-display); color: #fff; }
 .footer-brand span { font-size: var(--step--1); }
 .site-footer small { font-size: var(--step--1); }
@@ -836,7 +836,7 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
   padding: 1rem;
   text-align: center;
 }
-.reader-status img { width: 88px; height: 88px; border-radius: 50%; background: #fff; }
+.reader-status img { width: 120px; height: 120px; object-fit: contain; }
 .reader-status p { margin: 0; }
 .reader-status .en { color: #b9cdb8; }
 .reader-status .actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem; margin-top: 0.5rem; }
