@@ -10,6 +10,9 @@ const MAX_DPR = 2;
 const MAX_CANVAS_WIDTH = 2200;
 const RENDER_AHEAD = 2; // pages rendered on each side of the open spread
 const KEEP_RENDERED = 6; // pages further away than this are released to save memory
+const ZOOM_LEVELS = [1, 1.5, 2, 3]; // multiples of "fit to reader width"
+const ZOOM_FIT_MAX = 1100; // widest a page is drawn at 100%, in CSS pixels
+const ZOOM_MAX_CANVAS = 2800; // canvas pixel cap, keeps phones within memory
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -60,7 +63,7 @@ export class Flipbook {
       next: part('next'),
       counter: part('counter'),
       fullscreen: part('fullscreen'),
-      spacer: part('spacer'),
+      zoom: part('zoom'),
     };
     this.mobileScroll = mobileScroll;
     this.fullscreenTarget = fullscreenTarget;
@@ -71,7 +74,114 @@ export class Flipbook {
     this.token = 0;
     this.abort = null;
     this.issue = null;
+    this.zoom = { open: false, page: 0, level: 0, token: 0 };
+    this.buildZoomView();
     this.setupControls(keyboardTarget);
+  }
+
+  /* ---------- zoom to read ---------- */
+
+  buildZoomView() {
+    const button = (cls, icon, attrs, label = '') => `<button class="r-btn ${cls}" type="button" ${attrs}>`
+      + `<svg aria-hidden="true"><use href="#${icon}"/></svg>${label}</button>`;
+    const view = document.createElement('div');
+    view.className = 'zoom-view';
+    view.hidden = true;
+    view.setAttribute('role', 'region');
+    view.setAttribute('aria-label', 'பெரிதாக்கிய பக்கம்');
+    view.innerHTML = `
+      <div class="zoom-bar">
+        <div class="zoom-steps">
+          ${button('', 'i-minus', 'data-zoom-out aria-label="சிறிதாக்கு"')}
+          <p class="zoom-level" data-zoom-level aria-live="polite">100%</p>
+          ${button('', 'i-plus', 'data-zoom-in aria-label="பெரிதாக்கு"')}
+        </div>
+        ${button('zoom-close', 'i-close', 'data-zoom-close aria-label="பெரிதாக்கிய பார்வையை மூட"', '<span class="label-long">புரட்டும் பார்வை</span>')}
+      </div>
+      <div class="zoom-scroll" data-zoom-scroll tabindex="0"><div class="zoom-page" data-zoom-page></div></div>`;
+    this.ui.host.parentElement.append(view);
+    const q = (name) => view.querySelector(`[data-${name}]`);
+    Object.assign(this.ui, {
+      zoomView: view,
+      zoomScroll: q('zoom-scroll'),
+      zoomPage: q('zoom-page'),
+      zoomLevel: q('zoom-level'),
+      zoomIn: q('zoom-in'),
+      zoomOut: q('zoom-out'),
+    });
+    this.ui.zoomIn.addEventListener('click', () => this.setZoomLevel(this.zoom.level + 1));
+    this.ui.zoomOut.addEventListener('click', () => this.setZoomLevel(this.zoom.level - 1));
+    q('zoom-close').addEventListener('click', () => this.closeZoom());
+    this.ui.zoom?.addEventListener('click', () => (this.zoom.open ? this.closeZoom() : this.openZoom()));
+  }
+
+  openZoom() {
+    if (!this.flip) return;
+    Object.assign(this.zoom, { open: true, page: this.flip.getCurrentPageIndex() });
+    this.ui.zoomView.hidden = false;
+    this.ui.zoom?.setAttribute('aria-pressed', 'true');
+    this.renderZoom(true);
+    this.updateControls();
+    this.ui.zoomScroll.focus({ preventScroll: true });
+  }
+
+  closeZoom() {
+    if (!this.zoom.open) return;
+    this.zoom.open = false;
+    this.zoom.token += 1;
+    this.ui.zoomView.hidden = true;
+    this.ui.zoomPage.replaceChildren();
+    this.ui.zoom?.setAttribute('aria-pressed', 'false');
+    if (this.flip) this.goTo(this.zoom.page);
+  }
+
+  setZoomLevel(level) {
+    const next = Math.max(0, Math.min(ZOOM_LEVELS.length - 1, level));
+    if (next === this.zoom.level) return;
+    // keep the same spot of the page in view while zooming
+    const sc = this.ui.zoomScroll;
+    const fx = (sc.scrollLeft + sc.clientWidth / 2) / (sc.scrollWidth || 1);
+    const fy = (sc.scrollTop + sc.clientHeight / 2) / (sc.scrollHeight || 1);
+    this.zoom.level = next;
+    this.renderZoom(false).then(() => {
+      sc.scrollLeft = fx * sc.scrollWidth - sc.clientWidth / 2;
+      sc.scrollTop = fy * sc.scrollHeight - sc.clientHeight / 2;
+    });
+  }
+
+  async renderZoom(toTop) {
+    const pdf = this.pdf;
+    if (!pdf || !this.zoom.open) return;
+    const token = ++this.zoom.token;
+    const { zoomScroll, zoomPage, zoomLevel, zoomIn, zoomOut } = this.ui;
+    const scale = ZOOM_LEVELS[this.zoom.level];
+    zoomLevel.textContent = `${Math.round(scale * 100)}%`;
+    zoomOut.disabled = this.zoom.level === 0;
+    zoomIn.disabled = this.zoom.level === ZOOM_LEVELS.length - 1;
+    zoomPage.classList.add('is-loading');
+
+    const pad = parseFloat(getComputedStyle(zoomScroll).paddingLeft) * 2;
+    const cssWidth = Math.floor(Math.min(zoomScroll.clientWidth - pad, ZOOM_FIT_MAX) * scale);
+    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR);
+    try {
+      const page = await pdf.getPage(this.zoom.page + 1);
+      const base = page.getViewport({ scale: 1 });
+      const viewport = page.getViewport({ scale: Math.min(cssWidth * dpr, ZOOM_MAX_CANVAS) / base.width });
+      const canvas = document.createElement('canvas');
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      canvas.style.width = `${cssWidth}px`;
+      canvas.style.height = `${Math.round(cssWidth * (viewport.height / viewport.width))}px`;
+      await page.render({ canvasContext: canvas.getContext('2d', { alpha: false }), viewport }).promise;
+      if (token !== this.zoom.token || pdf !== this.pdf) return;
+      for (const old of zoomPage.querySelectorAll('canvas')) { old.width = 0; old.height = 0; }
+      zoomPage.replaceChildren(canvas);
+      if (toTop) { zoomScroll.scrollTop = 0; zoomScroll.scrollLeft = 0; }
+    } catch (err) {
+      if (token === this.zoom.token) console.warn('Er Idhazh flip book: zoomed page failed to render', err);
+    } finally {
+      if (token === this.zoom.token) zoomPage.classList.remove('is-loading');
+    }
   }
 
   /* ---------- status panel ---------- */
@@ -128,6 +238,8 @@ export class Flipbook {
   /* ---------- open / close ---------- */
 
   teardown() {
+    this.closeZoom();
+    if (this.ui.zoom) this.ui.zoom.disabled = true;
     if (this.flip) {
       this.flip.destroy();
       this.flip = null;
@@ -247,6 +359,7 @@ export class Flipbook {
     this.flip.loadFromHTML(els);
     this.flip.on('flip', () => this.refresh());
     this.flip.on('changeOrientation', () => this.refresh());
+    if (this.ui.zoom) this.ui.zoom.disabled = false;
     this.refresh();
   }
 
@@ -319,6 +432,13 @@ export class Flipbook {
   }
 
   updateControls() {
+    if (this.zoom.open) {
+      const total = this.pdf.numPages;
+      this.ui.counter.textContent = `பக்கம் ${this.zoom.page + 1} / ${total}`;
+      this.ui.prev.disabled = this.zoom.page <= 0;
+      this.ui.next.disabled = this.zoom.page + 1 >= total;
+      return;
+    }
     const total = this.flip.getPageCount();
     const i = this.flip.getCurrentPageIndex();
     const spread = this.isLandscape() && i > 0 && i + 1 < total;
@@ -329,6 +449,10 @@ export class Flipbook {
 
   go(direction) {
     if (!this.flip) return;
+    if (this.zoom.open) {
+      this.goTo(this.zoom.page + direction);
+      return;
+    }
     if (!reduceMotion) {
       if (direction > 0) this.flip.flipNext();
       else this.flip.flipPrev();
@@ -343,18 +467,29 @@ export class Flipbook {
 
   goTo(index) {
     if (!this.flip) return;
+    if (this.zoom.open) {
+      const page = Math.max(0, Math.min(this.pdf.numPages - 1, index));
+      if (page === this.zoom.page) return;
+      this.zoom.page = page;
+      this.updateControls();
+      this.renderZoom(true);
+      return;
+    }
     this.flip.turnToPage(index);
     this.refresh();
   }
 
   setupControls(keyboardTarget) {
-    const { prev, next, fullscreen, spacer } = this.ui;
+    const { prev, next, fullscreen } = this.ui;
     prev.addEventListener('click', () => this.go(-1));
     next.addEventListener('click', () => this.go(1));
 
     keyboardTarget.addEventListener('keydown', (e) => {
       if (!this.flip || e.altKey || e.ctrlKey || e.metaKey) return;
       if (e.target.closest?.('input, textarea, select')) return;
+      if (this.zoom.open && e.key === 'Escape') { e.preventDefault(); this.closeZoom(); return; }
+      if (this.zoom.open && (e.key === '+' || e.key === '=')) { e.preventDefault(); this.setZoomLevel(this.zoom.level + 1); return; }
+      if (this.zoom.open && e.key === '-') { e.preventDefault(); this.setZoomLevel(this.zoom.level - 1); return; }
       if (e.key === 'ArrowRight' || e.key === 'PageDown') { e.preventDefault(); this.go(1); }
       else if (e.key === 'ArrowLeft' || e.key === 'PageUp') { e.preventDefault(); this.go(-1); }
       else if (e.key === 'Home') { e.preventDefault(); this.goTo(0); }
@@ -373,8 +508,6 @@ export class Flipbook {
         fullscreen.setAttribute('aria-label', on ? 'முழுத்திரையிலிருந்து வெளியேற' : 'முழுத்திரை');
         fullscreen.querySelector('use').setAttribute('href', on ? '#i-collapse' : '#i-expand');
       });
-    } else if (spacer) {
-      spacer.hidden = true;
     }
 
     let resizeTimer;
@@ -382,6 +515,7 @@ export class Flipbook {
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
         if (!this.flip) return;
+        if (this.zoom.open) this.renderZoom(false);
         this.flip.getSettings().minWidth = this.portraitThreshold();
         this.flip.update();
         this.refresh();

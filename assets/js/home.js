@@ -15,7 +15,7 @@ function h(tag, attrs = {}, ...children) {
 }
 
 const fallbackCover = (text) => h('span', { class: 'cover-fallback' },
-  h('img', { src: 'assets/img/logo-192.png', alt: '', width: 192, height: 192 }),
+  h('img', { src: 'assets/img/crest-300.png', alt: '', width: 192, height: 192 }),
   h('span', {}, text));
 
 // Cover image from Drive, falling back to a typographic cover if Drive has no thumbnail.

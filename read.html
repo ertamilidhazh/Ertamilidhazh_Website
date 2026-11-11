@@ -27,6 +27,10 @@
 <body class="reader-page">
   <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
     <symbol id="i-back" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></symbol>
+    <symbol id="i-zoom" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M10.5 18a7.5 7.5 0 1 0 0-15 7.5 7.5 0 0 0 0 15zM21 21l-5.2-5.2M10.5 7.5v6M7.5 10.5h6"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" d="M5 12h14"/></symbol>
+    <symbol id="i-close" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" d="M6 6l12 12M18 6L6 18"/></symbol>
     <symbol id="i-prev" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M15 5l-7 7 7 7"/></symbol>
     <symbol id="i-next" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></symbol>
     <symbol id="i-expand" viewBox="0 0 24 24"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
@@ -55,7 +59,7 @@
   <main class="viewer" id="viewer">
     <div class="viewer-stage">
       <div class="reader-status" data-status>
-        <img src="assets/img/logo-192.png" width="120" height="120" alt="">
+        <img src="assets/img/crest-300.png" width="120" height="120" alt="">
         <p data-status-text role="status">இதழ் ஏற்றப்படுகிறது…</p>
         <p class="en" lang="en" data-status-en>Loading the issue</p>
         <div class="progress" data-progress role="progressbar" aria-label="பதிவிறக்க நிலை" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" hidden><span></span></div>
@@ -65,17 +69,24 @@
       <div class="book-host" data-host hidden></div>
     </div>
     <nav class="reader-controls" aria-label="பக்கங்களைப் புரட்ட">
-      <span class="spacer" data-spacer aria-hidden="true"></span>
-      <button class="r-btn r-btn--page" data-prev type="button" aria-label="முந்தைய பக்கம்" disabled>
-        <svg aria-hidden="true"><use href="#i-prev"/></svg>
-      </button>
-      <p class="counter" data-counter aria-live="polite">பக்கம் – / –</p>
-      <button class="r-btn r-btn--page r-btn--sun" data-next type="button" aria-label="அடுத்த பக்கம்" disabled>
-        <svg aria-hidden="true"><use href="#i-next"/></svg>
-      </button>
-      <button class="r-btn r-btn--fs" data-fullscreen type="button" aria-pressed="false" aria-label="முழுத்திரை" hidden>
-        <svg aria-hidden="true"><use href="#i-expand"/></svg>
-      </button>
+      <div class="pager">
+        <button class="r-btn r-btn--page" data-prev type="button" aria-label="முந்தைய பக்கம்" disabled>
+          <svg aria-hidden="true"><use href="#i-prev"/></svg>
+        </button>
+        <p class="counter" data-counter aria-live="polite">பக்கம் – / –</p>
+        <button class="r-btn r-btn--page r-btn--sun" data-next type="button" aria-label="அடுத்த பக்கம்" disabled>
+          <svg aria-hidden="true"><use href="#i-next"/></svg>
+        </button>
+      </div>
+      <div class="tools">
+        <button class="r-btn r-btn--sun" data-zoom type="button" aria-label="பெரிதாக்கிப் படிக்க" disabled>
+          <svg aria-hidden="true"><use href="#i-zoom"/></svg>
+          <span class="label-long">பெரிதாக்கிப் படிக்க</span>
+        </button>
+        <button class="r-btn r-btn--fs" data-fullscreen type="button" aria-pressed="false" aria-label="முழுத்திரை" hidden>
+          <svg aria-hidden="true"><use href="#i-expand"/></svg>
+        </button>
+      </div>
     </nav>
   </main>
 </body>
