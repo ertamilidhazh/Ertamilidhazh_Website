@@ -1,4 +1,4 @@
-import { listIssues, thumbUrl, readerUrl, viewUrl } from './drive.js';
+import { listIssues, readerUrl } from './drive.js';
 import { Flipbook, fillIssueSelect } from './flipbook.js';
 
 const $ = (id) => document.getElementById(id);
@@ -18,16 +18,19 @@ const fallbackCover = (text) => h('span', { class: 'cover-fallback' },
   h('img', { src: 'assets/img/crest-300.png', alt: '', width: 192, height: 192 }),
   h('span', {}, text));
 
-// Cover image from Drive, falling back to a typographic cover if Drive has no thumbnail.
+// Cover rendered by the sync Action, falling back to a typographic cover if there is none.
 function cover(issue) {
   const frame = h('span', { class: 'cover' });
+  if (!issue.cover) {
+    frame.append(fallbackCover(issue.label));
+    return frame;
+  }
   const img = h('img', {
-    src: thumbUrl(issue.id, 700),
+    src: issue.cover,
     alt: '',
     width: 600,
     height: 849,
     decoding: 'async',
-    referrerpolicy: 'no-referrer',
   });
   img.addEventListener('error', () => frame.replaceChildren(fallbackCover(issue.label)), { once: true });
   frame.append(img);
@@ -102,7 +105,7 @@ async function init() {
   const label = (issue) => {
     title.textContent = `${issue.label} இதழ்`;
     fullLink.href = readerUrl(issue.id);
-    driveLink.href = viewUrl(issue.id);
+    driveLink.href = issue.file;
     fullLink.hidden = false;
     driveLink.hidden = false;
   };

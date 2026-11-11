@@ -866,7 +866,6 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
 .book-host,
 .book { width: 100%; height: 100%; }
 .book-host:focus-visible { outline-offset: -3px; }
-.drive-preview { display: block; width: 100%; height: 100%; border: 0; border-radius: 4px; background: #fff; }
 /* StPageFlip sets min sizes inline; the stage already constrains the book */
 .book.stf__parent { min-width: 0 !important; min-height: 0 !important; }
 .book .stf__wrapper { height: 100%; }

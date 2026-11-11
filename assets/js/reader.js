@@ -1,4 +1,4 @@
-import { getIssue, listIssues, readerUrl, viewUrl } from './drive.js';
+import { getIssue, listIssues, readerUrl } from './drive.js';
 import { Flipbook, fillIssueSelect } from './flipbook.js';
 
 const $ = (id) => document.getElementById(id);
@@ -13,7 +13,7 @@ async function init() {
 
   const show = (issue) => {
     document.title = `${issue.label} இதழ் – ஏர் தமிழ் இதழ்`;
-    driveLink.href = viewUrl(issue.id);
+    driveLink.href = issue.file;
     driveLink.hidden = false;
     viewer.open(issue);
   };

@@ -1,0 +1,49 @@
+name: Sync issues from Google Drive
+
+# Copies new or changed issue PDFs from the Drive folder into issues/ and
+# publishes them with the site. Runs every hour; use "Run workflow" on the
+# Actions tab to pick up a new upload straight away.
+on:
+  schedule:
+    - cron: '17 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: sync-issues
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install PDF cover renderer
+        run: pip install --quiet pymupdf==1.24.14
+
+      - name: Copy PDFs from Google Drive
+        env:
+          # Optional. Without it the public folder view and download links are used.
+          GDRIVE_API_KEY: ${{ secrets.GDRIVE_API_KEY }}
+        run: python3 scripts/sync_issues.py
+
+      - name: Publish changes
+        if: always()
+        run: |
+          git add issues
+          if git diff --cached --quiet; then
+            echo "No changes in the Drive folder."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Sync issues from Google Drive"
+          git push
+          # Ask Pages to rebuild; pushes made with GITHUB_TOKEN may not start a build on their own.
+          curl -sS -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds" || true

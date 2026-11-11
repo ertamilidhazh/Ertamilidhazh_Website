@@ -1,7 +1,7 @@
 // Flip-book viewer: downloads an issue from Drive, renders it with PDF.js, turns pages with StPageFlip.
 // Used embedded on the home page and full-screen on read.html.
 import * as pdfjsLib from 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.min.mjs';
-import { downloadPdf, viewUrl, previewUrl, hasApiKey, folderUrl, ERROR_TEXT, DriveError } from './drive.js';
+import { downloadPdf, viewUrl, folderUrl, ERROR_TEXT, DriveError } from './drive.js';
 
 const PDFJS = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38';
 pdfjsLib.GlobalWorkerOptions.workerSrc = `${PDFJS}/build/pdf.worker.min.mjs`;
@@ -228,7 +228,7 @@ export class Flipbook {
     this.ui.progress.hidden = true;
     this.setStatus(ta, en);
     const buttons = [];
-    if (issue && ['network', 'quota'].includes(kind)) {
+    if (issue && kind === 'network') {
       buttons.push(this.action('மீண்டும் முயற்சிக்க', { primary: true, onClick: () => this.open(issue) }));
     }
     buttons.push(this.action('Google Drive-இல் படிக்க', { href: issue ? viewUrl(issue.id) : folderUrl(), external: true }));
@@ -255,31 +255,12 @@ export class Flipbook {
     this.ui.counter.textContent = 'பக்கம் – / –';
   }
 
-  // Until an API key is set, show the issue in Google's own Drive viewer (scrolling, not flipping).
-  showPreview(issue) {
-    console.info('Er Idhazh: add API_KEY in assets/js/config.js to turn on the flip book.');
-    const frame = document.createElement('iframe');
-    frame.className = 'drive-preview';
-    frame.src = previewUrl(issue.id);
-    frame.title = `${issue.label} இதழ் (Google Drive)`;
-    frame.allow = 'fullscreen';
-    this.ui.status.hidden = true;
-    this.ui.host.hidden = false;
-    this.ui.host.replaceChildren(frame);
-    this.ui.counter.textContent = 'Google Drive பார்வை';
-  }
-
   async open(issue) {
     const token = ++this.token;
     this.abort?.abort();
     this.abort = new AbortController();
     this.teardown();
     this.issue = issue;
-
-    if (!hasApiKey()) {
-      this.showPreview(issue);
-      return;
-    }
 
     this.setActions();
     this.setStatus('இதழ் பதிவிறக்கம் ஆகிறது…', `Downloading ${issue.label}`);
