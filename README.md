@@ -117,14 +117,14 @@ Once `API_KEY` is filled in, this list is ignored. Every PDF in the folder then 
 
 ## 3. Content notes
 
-All text comes from `Er Idhazh 19-10-2026.docx`. While building the site, these were adjusted. Please confirm them:
+All text comes from `Er Idhazh 19-10-2026.docx`, with these later changes:
 
-- `kavitha 30579@gmail. Com` was written as **kavitha30579@gmail.com**.
-- `gayathirigayathri241@gmail.om` was written as **gayathirigayathri241@gmail.com**.
 - "சக நலிஞர்கள் மதிப்பாய்வு" was written as **"சக அறிஞர்கள் மதிப்பாய்வு"** (Peer reviewed).
 - The bank account, copyright and website address fields were empty in the document:
   - The bank row is left out.
   - The footer reads "© 2026 ஏர் – தமிழ் இதழ்".
+- The editorial board shows names, roles and affiliations only. Personal emails and phone numbers are deliberately not published; the magazine's email is the public contact.
+- Subscription prices and the journal "type" line were removed on request (November 2026).
 - To change any text, edit `index.html` directly. Each section is clearly marked by its heading.
 
 ## 4. Troubleshooting

@@ -576,16 +576,12 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
 }
 .person-role { margin: 0 0 0.1rem; color: var(--soil); font-weight: 600; font-size: var(--step--1); }
 .person-name { font-size: var(--step-1); margin-bottom: 0.25rem; }
-.person-affil { margin: 0 0 0.5rem; color: var(--muted); font-size: var(--step--1); line-height: 1.6; }
-.person-links { display: flex; flex-wrap: wrap; gap: 0.1rem 1rem; margin: 0; font-size: var(--step--1); }
-.person-links a { overflow-wrap: anywhere; }
+.person-affil { margin: 0; color: var(--muted); font-size: var(--step--1); line-height: 1.6; }
 
 /* founder gets a wider row */
 .person--lead { grid-column: 1 / -1; grid-template-columns: auto minmax(0, 1fr); align-items: center; }
 .person--lead img { width: 156px; height: 156px; box-shadow: 0 0 0 3px var(--sun); }
 .person--lead .person-name { font-size: var(--step-3); }
-
-.reviewers { margin-top: clamp(3rem, 6vw, 4.5rem); }
 
 @media (max-width: 520px) {
   .person img { width: 84px; height: 84px; }
@@ -647,16 +643,16 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
   background: #fff;
 }
 .fees .sub-title { font-size: var(--step-1); }
-.fee-line { display: flex; justify-content: space-between; gap: 1rem; align-items: baseline; }
+.fee-line {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  align-items: baseline;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
 .price { font: 700 var(--step-2)/1.2 var(--font-display); color: var(--paddy-900); white-space: nowrap; }
-
-.fees table { width: 100%; margin: 0.5rem 0 1.75rem; border-collapse: collapse; }
-.fees th,
-.fees td { padding: 0.7rem 0; border-bottom: 1px solid var(--line); text-align: left; }
-.fees thead th { color: var(--muted); font-size: var(--step--1); font-weight: 600; }
-.fees td:last-child,
-.fees th:last-child { text-align: right; }
-.fees tbody th { font-weight: 500; }
 
 .fees .btn { width: 100%; }
 .fees .mail-hint { margin: 0.75rem 0 0; text-align: center; font-size: var(--step--1); color: var(--muted); }
