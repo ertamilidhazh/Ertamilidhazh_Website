@@ -34,7 +34,7 @@ const versioned = (url, hash) => (url && hash ? `${url}?v=${encodeURIComponent(h
 
 // "2026-10.pdf" or "2026-10 அக்டோபர் இதழ்.pdf" → அக்டோபர் 2026
 export function parseIssue(file) {
-  const base = (file.name || '').replace(/\.pdf$/i, '').trim() || 'ஏர் இதழ்';
+  const base = (file.name || '').replace(/(\.pdf)+$/i, '').trim() || 'ஏர் இதழ்'; // "x.pdf.pdf" → "x"
   const created = Date.parse(file.createdTime) || 0;
   const issue = {
     id: file.id,

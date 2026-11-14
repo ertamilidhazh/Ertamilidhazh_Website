@@ -64,7 +64,9 @@ def list_public():
         if name.lower().endswith('.pdf'):
             files.append({'id': file_id, 'name': name, 'createdTime': '', 'version': modified})
     if not files and 'flip-entry' not in page:
-        raise RuntimeError('could not read the public folder view; is the folder shared as "Anyone with the link"?')
+        # An empty folder looks the same as a broken page, so stop rather than wipe every issue off the site.
+        raise RuntimeError('the Drive folder looks empty, or it is not shared as "Anyone with the link". '
+                           'The website was left unchanged; upload at least one PDF and run again.')
     return files
 
 
@@ -124,7 +126,7 @@ def main():
             try:
                 data = download(f['id'])
             except RuntimeError as err:
-                print(f'  ! {f["name"]}: {err}', file=sys.stderr)
+                print(f'::warning::{f["name"]}: {err}')
                 failures.append(f['name'])
                 if old and pdf.exists():
                     issues.append(old)  # keep serving the copy we already have
@@ -161,8 +163,13 @@ def main():
 
     MANIFEST.write_text(json.dumps({'issues': issues}, ensure_ascii=False, indent=2) + '\n', encoding='utf-8')
     if failures:
-        sys.exit(f'Could not download: {", ".join(failures)} (will retry on the next run)')
+        raise RuntimeError(f'could not download {", ".join(failures)}; it will be retried on the next run')
 
 
 if __name__ == '__main__':
-    main()
+    try:
+        main()
+    except RuntimeError as err:
+        # "::error::" shows the reason on the run's summary page instead of just "exit code 1".
+        print(f'::error title=Drive sync stopped::{err}')
+        sys.exit(1)
