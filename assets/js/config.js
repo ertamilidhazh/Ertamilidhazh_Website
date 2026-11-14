@@ -1,7 +1,7 @@
 // இணையதள அமைப்புகள் · Site settings
 //
 // Issues are copied from this Google Drive folder into the website by the
-// "Sync issues from Google Drive" GitHub Action (every hour, or on demand from
+// "Sync issues from Google Drive" GitHub Action (every 5 minutes, or on demand from
 // the Actions tab). No API key belongs in this file: the website is public.
 
 export const CONFIG = {

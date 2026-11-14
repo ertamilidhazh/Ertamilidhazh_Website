@@ -29,6 +29,9 @@ export const folderUrl = () => `https://drive.google.com/drive/folders/${CONFIG.
 export const viewUrl = (id) => `https://drive.google.com/file/d/${encodeURIComponent(id)}/view`;
 export const readerUrl = (id) => `read.html?id=${encodeURIComponent(id)}`;
 
+// Adds the sync's content hash, so a replaced PDF or cover is never served from a stale browser cache.
+const versioned = (url, hash) => (url && hash ? `${url}?v=${encodeURIComponent(hash)}` : url);
+
 // "2026-10.pdf" or "2026-10 அக்டோபர் இதழ்.pdf" → அக்டோபர் 2026
 export function parseIssue(file) {
   const base = (file.name || '').replace(/\.pdf$/i, '').trim() || 'ஏர் இதழ்';
@@ -38,8 +41,8 @@ export function parseIssue(file) {
     name: file.name,
     size: Number(file.size) || 0,
     created,
-    file: file.file,
-    cover: file.cover || '',
+    file: versioned(file.file, file.hash),
+    cover: versioned(file.cover || '', file.hash),
   };
   const m = base.match(/^(\d{4})[-_. ](\d{1,2})(?!\d)/);
   const month = m ? Number(m[2]) : 0;

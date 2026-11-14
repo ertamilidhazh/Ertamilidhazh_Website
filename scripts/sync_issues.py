@@ -10,6 +10,7 @@ Covers:   first page rendered to issues/<id>.jpg when PyMuPDF is installed.
 Only new or changed files are downloaded; files removed from Drive are removed here.
 """
 
+import hashlib
 import html
 import json
 import os
@@ -128,18 +129,26 @@ def main():
                 if old and pdf.exists():
                     issues.append(old)  # keep serving the copy we already have
                 continue
-            tmp = pdf.with_suffix('.part')
-            tmp.write_bytes(data)
-            tmp.replace(pdf)
-            print(f'  + {f["name"]} ({len(data) // 1024} KB)')
-            jpg.unlink(missing_ok=True)  # the old cover belongs to the old file
+            if pdf.exists() and pdf.read_bytes() == data:
+                # Only Drive's "last modified" label changed (e.g. "12:49 am" became "Nov 14").
+                print(f'  = {f["name"]} (content unchanged)')
+            else:
+                tmp = pdf.with_suffix('.part')
+                tmp.write_bytes(data)
+                tmp.replace(pdf)
+                print(f'  + {f["name"]} ({len(data) // 1024} KB)')
+                jpg.unlink(missing_ok=True)  # the old cover belongs to the old file
+                old = None  # forces a new content hash below
         has_cover = jpg.exists() or render_cover(pdf, jpg)
+        # Content hash: the site adds it to the PDF/cover URLs so browsers never show a stale cached copy.
+        digest = (old or {}).get('hash') or hashlib.sha256(pdf.read_bytes()).hexdigest()[:16]
         issues.append({
             'id': f['id'],
             'name': f['name'],
             'createdTime': f['createdTime'] or (old or {}).get('createdTime', ''),
             'version': f['version'],
             'size': pdf.stat().st_size,
+            'hash': digest,
             'file': f'issues/{pdf.name}',
             'cover': f'issues/{jpg.name}' if has_cover else '',
         })

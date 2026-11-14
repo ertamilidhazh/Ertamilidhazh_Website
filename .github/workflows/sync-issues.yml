@@ -1,11 +1,13 @@
 name: Sync issues from Google Drive
 
 # Copies new or changed issue PDFs from the Drive folder into issues/ and
-# publishes them with the site. Runs every hour; use "Run workflow" on the
-# Actions tab to pick up a new upload straight away.
+# publishes them with the site. Runs every 5 minutes (GitHub's shortest
+# schedule; under load GitHub may start a run a few minutes late). Use
+# "Run workflow" on the Actions tab to pick up a new upload straight away.
+# A run with no Drive changes takes ~30 s and makes no commit.
 on:
   schedule:
-    - cron: '17 * * * *'
+    - cron: '*/5 * * * *'
   workflow_dispatch:
 
 permissions:
@@ -42,6 +44,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git commit -m "Sync issues from Google Drive"
+          # Someone may have pushed to main while this run was working.
+          git pull --rebase --quiet origin main
           git push
           # Ask Pages to rebuild; pushes made with GITHUB_TOKEN may not start a build on their own.
           curl -sS -X POST -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \

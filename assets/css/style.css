@@ -834,26 +834,55 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
   padding: 0.5rem 0.75rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
+.zoom-bar .zoom-fit { grid-column: 1; display: flex; gap: 0.4rem; }
 .zoom-bar .zoom-steps { grid-column: 2; display: flex; align-items: center; gap: 0.5rem; }
 .zoom-bar .zoom-close { grid-column: 3; justify-self: end; }
-.zoom-level { min-width: 4rem; margin: 0; text-align: center; font-variant-numeric: tabular-nums; }
+.zoom-range {
+  width: clamp(7rem, 16vw, 12rem);
+  height: 44px;
+  margin: 0;
+  accent-color: var(--sun);
+  cursor: pointer;
+}
+.zoom-input {
+  width: 4.75rem;
+  min-height: 44px;
+  padding: 0 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+  font: 500 1rem/1 var(--font-body);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+.zoom-input:hover { background: rgba(255, 255, 255, 0.1); }
+.zoom-input:focus { border-color: var(--sun); background: rgba(255, 255, 255, 0.12); }
 .zoom-scroll {
+  position: relative; /* zoom maths reads the page's offset from here */
+  display: flex;
   flex: 1;
   min-height: 0;
   overflow: auto;
   padding: clamp(0.5rem, 2vw, 1.5rem);
+  /* reserve the scrollbar's space so "fit width" never shows a sideways scrollbar */
+  scrollbar-gutter: stable;
   overscroll-behavior: contain;
   -webkit-overflow-scrolling: touch;
+  touch-action: pan-x pan-y; /* pinch is handled by the viewer, not the browser */
 }
+.zoom-scroll.can-pan .zoom-page { cursor: grab; }
+.zoom-scroll.is-panning,
+.zoom-scroll.is-panning .zoom-page { cursor: grabbing; user-select: none; }
 .zoom-page {
-  width: fit-content;
-  margin: 0 auto;
+  flex: none;
+  margin: auto; /* centred when smaller than the reader, scrollable from the edge when larger */
   background: #fff;
   box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.6);
   transition: opacity 0.15s ease;
 }
 .zoom-page.is-loading { opacity: 0.55; }
-.zoom-page canvas { display: block; }
+.zoom-page canvas { display: block; width: 100%; height: 100%; }
 
 .viewer-stage {
   position: relative;
@@ -920,6 +949,11 @@ a:hover { color: var(--paddy-600); text-decoration-thickness: 2px; }
   .reader-controls { display: flex; justify-content: space-between; }
   .reader-controls .label-long,
   .zoom-bar .label-long { display: none; }
+  /* phones: pinch, double-tap, +/− and the % box replace the slider */
+  .zoom-bar { display: flex; justify-content: space-between; gap: 0.4rem; padding-inline: 0.5rem; }
+  .zoom-bar .zoom-steps { gap: 0.3rem; }
+  .zoom-range { display: none; }
+  .zoom-input { width: 4.25rem; }
   .viewer--embedded { margin-inline: calc(-1 * var(--gutter)); border-radius: 0; }
 }
 
